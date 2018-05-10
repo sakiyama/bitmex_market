@@ -12,14 +12,14 @@ let market = Market({
 	// getting historical data form below
 	history : "2018-05-01T00:00:00.000Z", // Z make this utc
 });
-market.on('m1',(d)=>{
+market.m1.on((d)=>{
 	console.log('m1',d);
 });
-market.on('m5',(d)=>{
+market.m5.on((d)=>{
 	console.log('m5',d);
 });
 
 (async () => {
-	let candles = await market.candle.m1.load(100);
-	clog(candles)
+	let candles = await market.m1.load(100);
+	console.log(candles)
 })();

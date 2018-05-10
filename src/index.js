@@ -12,12 +12,10 @@ let timeframes = {
 };
 module.exports = function(options){
 	mongoose.connect(options.connection);
-	let result = {
-		candle : {}
-	};
+	let result = {};
 	let frames = Object.assign(options.timeframes,timeframes);
 	for( let frame in frames){
-		result.candle[frame] = mongoose.model(
+		result[frame] = mongoose.model(
 				"candle_" + frame,
 				Candle(frame,frames[frame]));
 //		result.candle[frame].remove({},(e,d)=>{clog(d)});
@@ -25,13 +23,15 @@ module.exports = function(options){
 //			clog(e)
 //		}))
 	}
-	result.observer = new Observer(
-			result.candle,
+	let observer = new Observer(
+			result,
 			timeframes,
 			options.timeframes,
 			options.history);
-	result.on = (frame,next) => {
-		result.observer._on(frame,next);
+	for( let frame in frames){
+		result[frame].on = (next) => {
+			observer._on(frame,next);
+		}
 	}
 	return result;
 };
