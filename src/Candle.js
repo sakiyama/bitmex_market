@@ -8,6 +8,32 @@ let bitmexTimeFrames = {
 	"1h" : 60 * 60 * 1000,
 	"1d" : 24 * 60 * 60 * 1000,
 };
+function findBaseMs(ms){
+	let found = false;
+	for(let name in bitmexTimeFrames){
+		if(bitmexTimeFrames[name] == ms){
+			found = true;
+			break;
+		}
+	}
+	if(found){
+		return null;
+	}
+	found = null;
+	for(let name in bitmexTimeFrames){
+		let baseMs = bitmexTimeFrames[name];
+		if(ms % baseMs != 0 || ms / baseMs < 1){
+			continue;
+		}
+		if(found == null || found < baseMs){
+			found = baseMs;
+		}
+	}
+	if(!found){
+		throw `${frame} couldn't calculate`;
+	}
+	return found;
+}
 export default function Candle(frame,ms){
 	var candleSchema = new mongoose.Schema({
 		// 開始時間 open time
@@ -21,6 +47,10 @@ export default function Candle(frame,ms){
 		close : Number,
 		volume : Number,
 	});
+	let baseMs = findBaseMs(ms);
+	if(baseMs){
+		candleSchema.statics.baseMs = baseMs;
+	}
 	candleSchema.statics.span = ms;
 	candleSchema.statics.frame = frame;
 	candleSchema.statics.first = function(){

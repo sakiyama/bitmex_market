@@ -15,7 +15,6 @@ export default class Observer{
 		this.onUpdate = {};
 		this.candles = candles;
 		this.converter = new Converter();
-		this.restLoaded = false;
 		let self = this;
 		(async () => {
 			for(let localName in frames){
@@ -23,7 +22,6 @@ export default class Observer{
 						candles[localName],
 						history_start)
 			}
-			this.restLoaded = true;
 			this._polling(frames,history_start);
 		})();
 	}
@@ -43,9 +41,6 @@ export default class Observer{
 	_on(frame,next){
 		this.onUpdate[frame] = next;
 	}
-	loaded(){
-		return this.restLoaded
-	}
 	async _getLastTime(model,history_start){
 		let since = new Date(history_start).getTime();
 		let last = await model.last();
@@ -60,13 +55,12 @@ export default class Observer{
 			clog(`getting historical ${model.frame} data from timestamp : ${new Date(since)}`);
 			let data = await model.fetch(since);
 			if(data.length < 499){
-				clog("got all histories",model.frame,"candles")
+				clog(`got all ${model.frame} histories`)
 				break;
 			}
 			since = data[data.length - 1].time.getTime() + model.span;
 			await sleep(2000);
 		}
-
 	}
 	async _triggerUpdate(frame,data){
 //		if(this.converter.working){
