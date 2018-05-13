@@ -1,11 +1,19 @@
 "use strict";
 import mongoose from 'mongoose'
+import Ccxt from 'ccxt';
+let ccxt = new Ccxt.bitmex();
+let bitmexTimeFrames = {
+	"1m" : 1 * 60 * 1000,
+	"5m" : 5 * 60 * 1000,
+	"1h" : 60 * 60 * 1000,
+	"1d" : 24 * 60 * 60 * 1000,
+};
 export default function Candle(frame,ms){
 	var candleSchema = new mongoose.Schema({
 		// 開始時間 open time
 		time : {
 			type : Date,
-	        unique: true
+			unique: true
 		},
 		open : Number,
 		high : Number,
@@ -22,6 +30,43 @@ export default function Candle(frame,ms){
 				time : 1
 			}
 		}).exec();
+	};
+	candleSchema.statics.fetch = async function(since,ifnew){
+		let name = null;
+		for(let property in bitmexTimeFrames){
+			if(this.span != bitmexTimeFrames[property]){
+				continue;
+			}
+			name = property;
+			break;
+		}
+		var data = await ccxt.fetchOHLCV(
+			"BTC/USD",
+			name,
+			since,
+			500,{
+				partial : false
+			}
+		);
+		data = data.map((d)=>{
+			d = this.parseCcxt(d);
+			d = d.toObject();
+			delete d._id;
+			this.findOneAndUpdate({
+				time : d.time
+			},d,{
+				upsert : true
+			},(e,old) => {
+				if(e){
+					throw e;
+				}
+				if(!old && ifnew){
+					ifnew(d);
+				}
+			});
+			return d;
+		});
+		return data;
 	};
 	candleSchema.statics.last = function(){
 		return this.findOne({
