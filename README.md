@@ -1,6 +1,6 @@
 # subscribe bitmex market data
 
-mongodb and redis requrired
+mongodb and redis required
 
 ```
 npm install sakiyama/bitmex_market#master
