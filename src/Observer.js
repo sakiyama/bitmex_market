@@ -14,26 +14,53 @@ export default class Observer{
 			history_start) {
 		this.onUpdate = {};
 		this.candles = candles;
-		this.converter = new Converter();
-		let self = this;
 		(async () => {
+
+			let promises = [];
 			for(let localName in frames){
-				await self._loadHistorical(
+				let proimse = this._loadHistorical(
 						candles[localName],
 						history_start)
+				promises.push(proimse);
 			}
-			this._polling(frames,history_start);
+			await Promise.all(promises);
+			for(let optional in optional_frames){
+				await Converter(
+					this.candles,
+					this.candles[optional]);
+			}
+			for(let frame in candles){
+				this._triggerUpdate(candles[frame]);
+			}
+			for(let localName in frames){
+				let candle = this.candles[localName];
+				let distination = [];
+				for(let property in this.candles){
+					if(this.candles[property].baseMs == candle.span){
+						distination.push(this.candles[property]);
+					}
+				}
+				this._polling(candle,history_start,distination);
+			}
 		})();
 	}
-	async _polling(frames,history_start){
+	async _polling(candle,history_start,distination){
 		while(true){
-			for(let localName in frames){
-				let model = this.candles[localName];
-				let since = await this._getLastTime(model,history_start);
-				let data = await model.fetch(since,() => {
-					this._triggerUpdate(model.frame);
+			let since = await this._getLastTime(candle,history_start);
+			try{
+				await candle.fetch(since,async (d) => {
+					this._triggerUpdate(candle);
+					for(let dist of distination){
+						let created = await Converter(
+								this.candles,
+								dist);
+						if(created){
+							this._triggerUpdate(dist);
+						}
+					}
 				});
-//				clog(data[data.length - 1]);
+			}catch(e){
+
 			}
 			await sleep(20000);
 		}
@@ -49,28 +76,27 @@ export default class Observer{
 		}
 		return since;
 	}
-	async _loadHistorical(model,history_start){
-		let since = await this._getLastTime(model,history_start);
-		while(true){
-			clog(`getting historical ${model.frame} data from timestamp : ${new Date(since)}`);
-			let data = await model.fetch(since);
-			if(data.length < 499){
-				clog(`got all ${model.frame} histories`)
-				break;
+	_loadHistorical(model,history_start){
+		return new Promise(async resolve => {
+			let since = await this._getLastTime(model,history_start);
+			while(true){
+//				clog(`getting historical ${model.frame} data from timestamp : ${new Date(since)}`);
+				let data = await model.fetch(since);
+				if(data.length < 499){
+					clog(`got all ${model.frame} histories`)
+					break;
+				}
+				since = data[data.length - 1].time.getTime() + model.span;
+				await sleep(8000);
 			}
-			since = data[data.length - 1].time.getTime() + model.span;
-			await sleep(2000);
-		}
+			resolve();
+		})
 	}
-	async _triggerUpdate(frame,data){
-//		if(this.converter.working){
-//			return;
-//		}
-//		await this.converter.execute();
-		/*await this._test();*/
-		if(this.onUpdate[frame]){
-			let data = await this.candles[frame].last();
-			this.onUpdate[frame](data);
+	async _triggerUpdate(candle){
+		this._test();
+		if(this.onUpdate[candle.frame]){
+			let data = await candle.last();
+			this.onUpdate[candle.frame](data);
 		}
 	}
 	async _test(){

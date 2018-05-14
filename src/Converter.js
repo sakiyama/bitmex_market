@@ -1,80 +1,57 @@
 "use strict";
-import BitMEXClient from 'bitmex-realtime-api';
-
-export default class Converter{
-	constructor() {
-		this.working = false;
-	}
-	async execute(){
-		this.working = true;
-		let first = await mongo.candle.m1.first();
-		let start = first.time.getTime();
-		for(let timeFrame in config.timeframes){
-			if(timeFrame == "m1"){
-				continue;
-			}
-			await frameEach(start,timeFrame);
+export default async function Converter(candles,target){
+	let base = null;
+	for(let property in candles){
+		if(candles[property].span == target.baseMs){
+			base = candles[property];
+			break;
 		}
-		this.working = false;
 	}
-	static talib(mongo_candles){
-		let keys = Object.keys(mongo_candles[0]);
-		let result = {};
-		keys.forEach(p => {
-			result[p] = [];
-		});
-		mongo_candles.forEach(d => {
-			keys.forEach(p => {
-				result[p].push(d[p]);
-			});
-		})
-		return result;
-	}
-}
-async function frameEach(start,timeFrame){
-	let timeFrameNumber = config.timeframes[timeFrame];
-	let candleCount = timeFrameNumber / config.timeframes.m1;
+	let first = await base.first();
+	let start = first.time.getTime();
+	let candleCount = target.span / base.span;
+
 	let searchStart = start;
-	let last = await mongo.candle[timeFrame].last();
+	let last = await target.last();
 	if(last){
-		let targetStart = last.time;
-		targetStart = targetStart.getTime() + timeFrameNumber;
+		let targetStart = last.time.getTime() + target.span;
 		if(targetStart > start){
 			searchStart = targetStart;
 		}
 	}
-//	clog(timeFrame,"starting from",new Date(searchStart))
 	let count = 0;
+	let created = false;
 	while(true){
 		let result = await candleEach(
 			searchStart,
-			timeFrame,
-			timeFrameNumber,
+			base,
+			target,
 			candleCount);
 		if(!result){
-//			clog(timeFrame,"converted to",new Date(searchStart))
+//			clog(target.frame,"converted to",new Date(searchStart))
 			break;
 		}
-		searchStart += timeFrameNumber;
+		created = true;
+		searchStart += target.span;
 		count++;
 		if(count % 1000 == 0){
-//			clog(timeFrame,count,"converted and saved");
+//			clog(target.frame,count,"converted and saved");
 		}
 	}
+	return created;
 }
 function candleEach(
 		start,
-		timeFrame,
-		timeFrameNumber,
+		base,
+		target,
 		candleCount){
 	return new Promise(resolve =>{
-		mongo.candle.m1.find({
+		base.find({
 			time : {
 				$gte : start,
-				$lt : start + timeFrameNumber
+				$lt : start + target.span
 			}
-		},{
-		},{
+		},'-_id -__v',{
 			sort : {
 				time : 1
 			}
@@ -87,26 +64,23 @@ function candleEach(
 				if(converted){
 					converted.add(c);
 				}else{
-					converted = new mongo.candle[timeFrame]();
-					converted.time = c.time;
-					converted.timestamp = c.time.getTime() + timeFrameNumber;
-					converted.open = c.open;
-					converted.high = c.high;
-					converted.low = c.low;
-					converted.close = c.close;
-					converted.volume = c.volume;
-					converted.vwap = c.vwap;
+					c = c.toObject();
+					converted = new target(c);
 				}
 			});
-			converted.save((e,d)=>{
+			converted = converted.toObject();
+			delete converted._id;
+			target.findOneAndUpdate({
+				time : converted.time
+			},converted,{
+				upsert : true
+			},(e,old) => {
 				if(e){
-					clog("save failed")
-					clog("converted",converted)
-					clog("candles",candles)
+					clog("convert failed")
 					throw e;
 				}
+				resolve(converted)
 			});
-			resolve(converted)
 		});
 	});
 }
