@@ -26,8 +26,6 @@ Thumbs.db
 
 .package-lock.json
 
-/dist
-
 # cache files #
 ###########################
 *.pyc
