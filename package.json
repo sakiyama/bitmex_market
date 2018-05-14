@@ -4,7 +4,8 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "test": "nodemon --trace-warnings dist/test/test.js"
+    "server": "nodemon --trace-warnings dist/test/server.js",
+    "client": "nodemon --trace-warnings dist/test/client.js"
   },
   "engines": {
     "node": "^8.9.4"
@@ -13,7 +14,8 @@
   "author": "",
   "dependencies": {
     "ccxt": "^1.13.121",
-    "mongoose": "^5.0.12"
+    "mongoose": "^5.0.12",
+    "redis": "^2.8.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

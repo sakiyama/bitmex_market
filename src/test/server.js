@@ -1,6 +1,5 @@
 import Market from '../index';
-
-let market = Market({
+Market.server({
 	// mongoose connection string
 	connection : "mongodb://test_user:test_password@127.0.0.1:27017/test_db",
 	// optional time frames
@@ -14,23 +13,3 @@ let market = Market({
 	// getting historical data form below
 	history : "2018-01-01T00:00:00.000Z", // Z make this utc
 });
-market.m1.on((d)=>{
-	console.log('m1',d);
-});
-market.m2.on((d)=>{
-	console.log('m2',d);
-});
-//market.m5.on((d)=>{
-//	console.log('m5',d);
-//});
-market.m15.on((d)=>{
-	console.log('m15',d);
-});
-market.h2.on((d)=>{
-	console.log('h2',d);
-});
-//
-//(async () => {
-//	let candles = await market.m1.load(100);
-//	console.log(candles)
-//})();
