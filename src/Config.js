@@ -1,6 +1,4 @@
 import mongoose from 'mongoose';
-
-
 export default function Config(){
 	var configSchema = new mongoose.Schema({
 		// 開始時間 open time
@@ -27,5 +25,4 @@ export default function Config(){
 		return old.save();
 	};
 	return configSchema;
-	let configModel = mongoose.model('config',configSchema);
 }

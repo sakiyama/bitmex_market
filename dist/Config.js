@@ -35,5 +35,4 @@ function Config() {
 		return old.save();
 	};
 	return configSchema;
-	let configModel = _mongoose2.default.model('config', configSchema);
 }
