@@ -1,6 +1,8 @@
 "use strict";
 import Converter from './Converter';
 import Ccxt from 'ccxt';
+// https://github.com/ko0f/api-connectors.git
+import BitMEXClient from '../api-connectors/official-ws/nodejs/';
 var redis = require("redis");
 let ccxt = new Ccxt.bitmex();
 let sleep = (ms) => {
@@ -16,6 +18,10 @@ export default class Observer{
 			onUpdate) {
 		this.candles = candles;
 		this.onUpdate = onUpdate;
+		this.socket = new BitMEXClient({
+			testnet: false,
+			alwaysReconnect : true,
+		});
 		(async () => {
 
 			let promises = [];
@@ -43,8 +49,30 @@ export default class Observer{
 					}
 				}
 				this._polling(candle,history_start,distination);
+				this._connectSocket(candle,distination);
 			}
 		})();
+	}
+	async _connectSocket(candle,distination){
+		var tableNames = {
+			'm1' : 'tradeBin1m',
+			'm5' : 'tradeBin5m',
+			'h1' : 'tradeBin1h',
+			'd1' : 'tradeBin1d',
+		};
+		let tableName = tableNames[candle.frame];
+		this.socket.addStream(
+				"XBTUSD",
+				tableName,
+				async (data, symbol, tableName) =>{
+					if(!data.length){
+						return;
+					}
+					data = data[data.length - 1];
+					data = candle.parseSocket(data);
+					let last = await candle.last();
+					console.log(tableName,data,last)
+				});
 	}
 	async _polling(candle,history_start,distination){
 		while(true){
@@ -111,7 +139,7 @@ export default class Observer{
 				if(d == count){
 //					console.log(frame,"OK",count)
 				}else{
-					console.log(frame,"NG",count)
+					console.log(frame,"NG",d-count)
 //					searchLost(m);
 				}
 			})

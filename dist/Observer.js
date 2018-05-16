@@ -12,9 +12,15 @@ var _ccxt = require('ccxt');
 
 var _ccxt2 = _interopRequireDefault(_ccxt);
 
+var _nodejs = require('../api-connectors/official-ws/nodejs/');
+
+var _nodejs2 = _interopRequireDefault(_nodejs);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var redis = require("redis");
+// https://github.com/ko0f/api-connectors.git
+
 let ccxt = new _ccxt2.default.bitmex();
 let sleep = ms => {
 	return new Promise(resolve => setTimeout(resolve, ms));
@@ -24,6 +30,10 @@ class Observer {
 	constructor(candles, frames, optional_frames, history_start, onUpdate) {
 		this.candles = candles;
 		this.onUpdate = onUpdate;
+		this.socket = new _nodejs2.default({
+			testnet: false,
+			alwaysReconnect: true
+		});
 		(async () => {
 
 			let promises = [];
@@ -47,8 +57,27 @@ class Observer {
 					}
 				}
 				this._polling(candle, history_start, distination);
+				this._connectSocket(candle, distination);
 			}
 		})();
+	}
+	async _connectSocket(candle, distination) {
+		var tableNames = {
+			'm1': 'tradeBin1m',
+			'm5': 'tradeBin5m',
+			'h1': 'tradeBin1h',
+			'd1': 'tradeBin1d'
+		};
+		let tableName = tableNames[candle.frame];
+		this.socket.addStream("XBTUSD", tableName, async (data, symbol, tableName) => {
+			if (!data.length) {
+				return;
+			}
+			data = data[data.length - 1];
+			data = candle.parseSocket(data);
+			let last = await candle.last();
+			console.log(tableName, data, last);
+		});
 	}
 	async _polling(candle, history_start, distination) {
 		while (true) {
@@ -111,7 +140,7 @@ class Observer {
 				if (d == count) {
 					//					console.log(frame,"OK",count)
 				} else {
-					console.log(frame, "NG", count);
+					console.log(frame, "NG", d - count);
 					//					searchLost(m);
 				}
 			});

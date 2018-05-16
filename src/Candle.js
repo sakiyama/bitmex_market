@@ -61,6 +61,23 @@ export default function Candle(frame,ms){
 			}
 		}).exec();
 	};
+	candleSchema.statics.upsertIfNew = function(d,ifnew){
+		if(d._id){
+			delete d._id;
+		}
+		this.findOneAndUpdate({
+			time : d.time
+		},d,{
+			upsert : true
+		},(e,old) => {
+			if(e){
+				throw e;
+			}
+			if(!old && ifnew){
+				ifnew(d);
+			}
+		});
+	}
 	candleSchema.statics.fetch = async function(since,ifnew){
 		let name = null;
 		for(let property in bitmexTimeFrames){
@@ -81,19 +98,7 @@ export default function Candle(frame,ms){
 		data = data.map((d)=>{
 			d = this.parseCcxt(d);
 			d = d.toObject();
-			delete d._id;
-			this.findOneAndUpdate({
-				time : d.time
-			},d,{
-				upsert : true
-			},(e,old) => {
-				if(e){
-					throw e;
-				}
-				if(!old && ifnew){
-					ifnew(d);
-				}
-			});
+			this.upsertIfNew(d,ifnew);
 			return d;
 		});
 		return data;
