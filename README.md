@@ -11,7 +11,13 @@ npm install sakiyama/bitmex_market#master
 import Market from 'bitmex_market';
 Market.server({
 	// mongoose connection string
-	connection : "mongodb://test_user:test_password@127.0.0.1:27017/test_db",
+	mongo : "mongodb://test_user:test_password@127.0.0.1:27017/test_db",
+	//
+	redis : {
+		host : "127.0.0.1",
+		port : 6379,
+		password : "test_redis_password"
+	},
 	// optional time frames
 	// m1,m5,h1,d1 are bitmex default time frames
 	// all frames must be able to calculate from these time frames.
@@ -29,10 +35,16 @@ Market.server({
 ```
 import Market from 'bitmex_market';
 (async () => {
-	let market = await Market.client(
+	let market = await Market.client({
 		// mongoose connection string
-		"mongodb://test_user:test_password@127.0.0.1:27017/test_db"
-	);
+		mongo : "mongodb://test_user:test_password@127.0.0.1:27017/test_db",
+		//
+		redis : {
+			host : "127.0.0.1",
+			port : 6379,
+			password : "test_redis_password"
+		},
+	});
 	market.m1.on((d)=>{
 		console.log('m1',d);
 	});
@@ -41,7 +53,7 @@ import Market from 'bitmex_market';
 	});
 	market.m5.on((d)=>{
 		console.log('m5',d);
-	//});
+	});
 	market.m15.on((d)=>{
 		console.log('m15',d);
 	});

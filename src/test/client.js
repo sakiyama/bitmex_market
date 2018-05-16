@@ -17,9 +17,9 @@ import Market from '../index';
 	market.m2.on((d)=>{
 		console.log('m2',d);
 	});
-	//market.m5.on((d)=>{
-//			console.log('m5',d);
-	//});
+	market.m5.on((d)=>{
+		console.log('m5',d);
+	});
 	market.m15.on((d)=>{
 		console.log('m15',d);
 	});
@@ -27,6 +27,6 @@ import Market from '../index';
 		console.log('h2',d);
 	});
 	let candles = await market.m1.load(100);
-//	console.log(candles)
+	console.log(candles)
 })();
 

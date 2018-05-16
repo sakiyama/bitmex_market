@@ -79,10 +79,10 @@ class Observer {
 		return new Promise(async resolve => {
 			let since = await this._getLastTime(model, history_start);
 			while (true) {
-				//				clog(`getting historical ${model.frame} data from timestamp : ${new Date(since)}`);
+				//				console.log(`getting historical ${model.frame} data from timestamp : ${new Date(since)}`);
 				let data = await model.fetch(since);
 				if (data.length < 499) {
-					clog(`got all ${model.frame} histories`);
+					console.log(`got all ${model.frame} histories`);
 					break;
 				}
 				since = data[data.length - 1].time.getTime() + model.span;
@@ -109,9 +109,9 @@ class Observer {
 			count++;
 			m.count({}, (e, d) => {
 				if (d == count) {
-					//					clog(frame,"OK",count)
+					//					console.log(frame,"OK",count)
 				} else {
-					clog(frame, "NG", count);
+					console.log(frame, "NG", count);
 					//					searchLost(m);
 				}
 			});

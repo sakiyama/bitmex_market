@@ -28,14 +28,14 @@ export default async function Converter(candles,target){
 			target,
 			candleCount);
 		if(!result){
-//			clog(target.frame,"converted to",new Date(searchStart))
+//			console.log(target.frame,"converted to",new Date(searchStart))
 			break;
 		}
 		created = true;
 		searchStart += target.span;
 		count++;
 		if(count % 1000 == 0){
-//			clog(target.frame,count,"converted and saved");
+//			console.log(target.frame,count,"converted and saved");
 		}
 	}
 	return created;
@@ -76,7 +76,7 @@ function candleEach(
 				upsert : true
 			},(e,old) => {
 				if(e){
-					clog("convert failed")
+					console.log("convert failed")
 					throw e;
 				}
 				resolve(converted)
