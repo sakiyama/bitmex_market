@@ -1,4 +1,4 @@
-# subscribe bitmex market data
+# subscribe bitmex XBTUSD market data
 
 mongodb and redis required
 
