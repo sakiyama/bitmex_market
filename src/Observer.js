@@ -1,8 +1,7 @@
 "use strict";
 import Converter from './Converter';
 import Ccxt from 'ccxt';
-var redis = require("redis")
-, publisher = redis.createClient();
+var redis = require("redis");
 let ccxt = new Ccxt.bitmex();
 let sleep = (ms) => {
 	return new Promise(resolve => setTimeout(resolve, ms));
@@ -13,8 +12,10 @@ export default class Observer{
 			candles,
 			frames,
 			optional_frames,
-			history_start) {
+			history_start,
+			onUpdate) {
 		this.candles = candles;
+		this.onUpdate = onUpdate;
 		(async () => {
 
 			let promises = [];
@@ -93,7 +94,7 @@ export default class Observer{
 	async _triggerUpdate(candle){
 		this._test();
 		let data = await candle.last();
-		publisher.publish(candle.frame,JSON.stringify(data));
+		this.onUpdate(candle.frame,JSON.stringify(data));
 	}
 	async _test(){
 		for(let frame in this.candles){

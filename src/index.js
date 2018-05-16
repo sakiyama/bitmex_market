@@ -3,8 +3,7 @@ import mongoose from 'mongoose';
 import Candle from './Candle';
 import Config from './Config';
 import Observer from './Observer';
-var redis = require("redis")
-, subscriber = redis.createClient();
+var redis = require("redis");
 global.clog = console.log;
 
 let timeframes = {
@@ -29,23 +28,28 @@ function createResult(mongoose,frames){
 }
 module.exports = {
 	server : async function(options){
-		mongoose.connect(options.connection);
+		mongoose.connect(options.mongo);
 		let frames = Object.assign({},options.timeframes,timeframes);
 		configModel.save(frames,options.history);
+		let publisher = redis.createClient(options.redis);
 		let result = createResult(mongoose,frames);
 		let observer = new Observer(
 			result,
 			timeframes,
 			options.timeframes,
-			options.history);
+			options.history,
+			(channel,data) => {
+				publisher.publish(channel,data);
+			});
 		return result;
 	},
-	client : async function(connection){
-		mongoose.connect(connection);
+	client : async function(options){
+		mongoose.connect(options.mongo);
 		let config = await configModel.load();
 		let frames = config.timeframes;
 		let result = createResult(mongoose,frames);
 
+		let subscriber = redis.createClient(options.redis);
 		let callbacks = {};
 		subscriber.on("message", function(channel, d) {
 			if(callbacks[channel]){

@@ -18,8 +18,7 @@ var _Observer2 = _interopRequireDefault(_Observer);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var redis = require("redis"),
-    subscriber = redis.createClient();
+var redis = require("redis");
 global.clog = console.log;
 
 let timeframes = {
@@ -42,19 +41,23 @@ function createResult(mongoose, frames) {
 }
 module.exports = {
 	server: async function (options) {
-		_mongoose2.default.connect(options.connection);
+		_mongoose2.default.connect(options.mongo);
 		let frames = Object.assign({}, options.timeframes, timeframes);
 		configModel.save(frames, options.history);
+		let publisher = redis.createClient(options.redis);
 		let result = createResult(_mongoose2.default, frames);
-		let observer = new _Observer2.default(result, timeframes, options.timeframes, options.history);
+		let observer = new _Observer2.default(result, timeframes, options.timeframes, options.history, (channel, data) => {
+			publisher.publish(channel, data);
+		});
 		return result;
 	},
-	client: async function (connection) {
-		_mongoose2.default.connect(connection);
+	client: async function (options) {
+		_mongoose2.default.connect(options.mongo);
 		let config = await configModel.load();
 		let frames = config.timeframes;
 		let result = createResult(_mongoose2.default, frames);
 
+		let subscriber = redis.createClient(options.redis);
 		let callbacks = {};
 		subscriber.on("message", function (channel, d) {
 			if (callbacks[channel]) {

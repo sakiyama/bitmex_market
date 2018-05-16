@@ -33,4 +33,4 @@ Thumbs.db
 checkpoint
 *.ipynb
 
-/ccxt/*
+real.js

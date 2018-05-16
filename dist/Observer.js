@@ -14,16 +14,16 @@ var _ccxt2 = _interopRequireDefault(_ccxt);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var redis = require("redis"),
-    publisher = redis.createClient();
+var redis = require("redis");
 let ccxt = new _ccxt2.default.bitmex();
 let sleep = ms => {
 	return new Promise(resolve => setTimeout(resolve, ms));
 };
 //import testDB from './test/db.js';
 class Observer {
-	constructor(candles, frames, optional_frames, history_start) {
+	constructor(candles, frames, optional_frames, history_start, onUpdate) {
 		this.candles = candles;
+		this.onUpdate = onUpdate;
 		(async () => {
 
 			let promises = [];
@@ -94,7 +94,7 @@ class Observer {
 	async _triggerUpdate(candle) {
 		this._test();
 		let data = await candle.last();
-		publisher.publish(candle.frame, JSON.stringify(data));
+		this.onUpdate(candle.frame, JSON.stringify(data));
 	}
 	async _test() {
 		for (let frame in this.candles) {

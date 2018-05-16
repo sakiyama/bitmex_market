@@ -1,15 +1,22 @@
-'use strict';
+"use strict";
 
-var _index = require('../index');
+var _index = require("../index");
 
 var _index2 = _interopRequireDefault(_index);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 (async () => {
-	let market = await _index2.default.client(
-	// mongoose connection string
-	"mongodb://test_user:test_password@127.0.0.1:27017/test_db");
+	let market = await _index2.default.client({
+		// mongoose connection string
+		mongo: "mongodb://test_user:test_password@127.0.0.1:27017/test_db",
+		//
+		redis: {
+			host: "127.0.0.1",
+			port: 6379,
+			password: "test_redis_password"
+		}
+	});
 	market.m1.on(d => {
 		console.log('m1', d);
 	});
@@ -26,5 +33,5 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 		console.log('h2', d);
 	});
 	let candles = await market.m1.load(100);
-	console.log(candles);
+	//	console.log(candles)
 })();

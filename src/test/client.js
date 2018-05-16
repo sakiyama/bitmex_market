@@ -1,10 +1,16 @@
 import Market from '../index';
 
 (async () => {
-	let market = await Market.client(
+	let market = await Market.client({
 		// mongoose connection string
-		"mongodb://test_user:test_password@127.0.0.1:27017/test_db"
-	);
+		mongo : "mongodb://test_user:test_password@127.0.0.1:27017/test_db",
+		//
+		redis : {
+			host : "127.0.0.1",
+			port : 6379,
+			password : "test_redis_password"
+		},
+	});
 	market.m1.on((d)=>{
 		console.log('m1',d);
 	});
@@ -21,6 +27,6 @@ import Market from '../index';
 		console.log('h2',d);
 	});
 	let candles = await market.m1.load(100);
-	console.log(candles)
+//	console.log(candles)
 })();
 

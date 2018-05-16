@@ -8,7 +8,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 _index2.default.server({
 	// mongoose connection string
-	connection: "mongodb://test_user:test_password@127.0.0.1:27017/test_db",
+	mongo: "mongodb://test_user:test_password@127.0.0.1:27017/test_db",
+	//
+	redis: {
+		host: "127.0.0.1",
+		port: 6379,
+		password: "test_redis_password"
+	},
 	// optional time frames
 	// m1,m5,h1,d1 are bitmex default time frames
 	// all frames must be able to calculate from these time frames.
