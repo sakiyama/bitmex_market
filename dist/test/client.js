@@ -32,6 +32,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 	market.h2.on(d => {
 		console.log('h2', d);
 	});
+	market.d1.on(d => {
+		console.log('d1', d);
+	});
 	let candles = await market.m1.load(100);
 	console.log(candles);
 })();

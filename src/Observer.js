@@ -53,6 +53,16 @@ export default class Observer{
 			}
 		})();
 	}
+	async _convertDistination(distination){
+		for(let dist of distination){
+			let created = await Converter(
+					this.candles,
+					dist);
+			if(created){
+				this._triggerUpdate(dist);
+			}
+		}
+	}
 	async _connectSocket(candle,distination){
 		var tableNames = {
 			'm1' : 'tradeBin1m',
@@ -70,8 +80,10 @@ export default class Observer{
 					}
 					data = data[data.length - 1];
 					data = candle.parseSocket(data);
-					let last = await candle.last();
-					console.log(tableName,data,last)
+					data = data.toObject();
+					candle.upsertIfNew(data,() => {
+						this._convertDistination(distination);
+					});
 				});
 	}
 	async _polling(candle,history_start,distination){
@@ -80,14 +92,7 @@ export default class Observer{
 			try{
 				await candle.fetch(since,async (d) => {
 					this._triggerUpdate(candle);
-					for(let dist of distination){
-						let created = await Converter(
-								this.candles,
-								dist);
-						if(created){
-							this._triggerUpdate(dist);
-						}
-					}
+					this._convertDistination(distination);
 				});
 			}catch(e){
 
