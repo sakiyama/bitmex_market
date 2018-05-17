@@ -8,18 +8,18 @@ var allJsSource = [ 'src/*.js', 'src/**/*' ];
 // https://stackoverflow.com/questions/22824546/how-to-run-gulp-tasks-sequentially-one-after-the-other
 // 3.9.1 here
 gulp.task('clean', function() {
-	gulp.src('dist/**/*', {read: false})
+	return gulp.src('dist/**/*', {read: false})
 		.pipe(clean());
 });
 gulp.task('babel', function() {
-	gulp.src(allJsSource)
+	return gulp.src(allJsSource)
 		.pipe(plumber())
 		.pipe(babel())
 		.pipe(gulp.dest('dist'));
 });
 gulp.task('watch', function() {
-	gulp.watch(allJsSource, ['babel']);
+	return gulp.watch(allJsSource,  gulp.series('babel'));
 });
 
-gulp.task('build', [ 'babel' ]);
-gulp.task('default', [ 'babel', 'watch' ]);
+gulp.task('build', gulp.series('babel'));
+gulp.task('default',gulp.series('babel', 'watch'));
