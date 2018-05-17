@@ -32,6 +32,6 @@ Thumbs.db
 *.ckpt.*
 checkpoint
 *.ipynb
+package-lock.json
 
-/api-connectors/
 real.js

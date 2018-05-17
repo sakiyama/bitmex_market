@@ -12,9 +12,9 @@ var _ccxt = require('ccxt');
 
 var _ccxt2 = _interopRequireDefault(_ccxt);
 
-var _nodejs = require('../api-connectors/official-ws/nodejs/');
+var _apiConnectors = require('../api-connectors/');
 
-var _nodejs2 = _interopRequireDefault(_nodejs);
+var _apiConnectors2 = _interopRequireDefault(_apiConnectors);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -25,12 +25,11 @@ let ccxt = new _ccxt2.default.bitmex();
 let sleep = ms => {
 	return new Promise(resolve => setTimeout(resolve, ms));
 };
-//import testDB from './test/db.js';
 class Observer {
 	constructor(candles, frames, optional_frames, history_start, onUpdate) {
 		this.candles = candles;
 		this.onUpdate = onUpdate;
-		this.socket = new _nodejs2.default({
+		this.socket = new _apiConnectors2.default({
 			testnet: false,
 			alwaysReconnect: true
 		});
@@ -85,6 +84,7 @@ class Observer {
 			data = candle.parseSocket(data);
 			data = data.toObject();
 			candle.upsertIfNew(data, () => {
+				this._triggerUpdate(candle);
 				this._convertDistination(distination);
 			});
 		});

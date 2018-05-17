@@ -2,13 +2,12 @@
 import Converter from './Converter';
 import Ccxt from 'ccxt';
 // https://github.com/ko0f/api-connectors.git
-import BitMEXClient from '../api-connectors/official-ws/nodejs/';
+import BitMEXClient from '../api-connectors/';
 var redis = require("redis");
 let ccxt = new Ccxt.bitmex();
 let sleep = (ms) => {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
-//import testDB from './test/db.js';
 export default class Observer{
 	constructor(
 			candles,
@@ -82,6 +81,7 @@ export default class Observer{
 					data = candle.parseSocket(data);
 					data = data.toObject();
 					candle.upsertIfNew(data,() => {
+						this._triggerUpdate(candle);
 						this._convertDistination(distination);
 					});
 				});
