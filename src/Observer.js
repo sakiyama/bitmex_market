@@ -21,6 +21,8 @@ export default class Observer{
 			testnet: false,
 			alwaysReconnect : true,
 		});
+		this.socket.on('error', (e) => {
+		});
 		(async () => {
 
 			let promises = [];
