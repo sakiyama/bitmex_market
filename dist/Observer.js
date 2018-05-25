@@ -35,7 +35,6 @@ class Observer {
 		});
 		this.socket.on('error', e => {});
 		(async () => {
-
 			let promises = [];
 			for (let localName in frames) {
 				let proimse = this._loadHistorical(candles[localName], history_start);
@@ -77,7 +76,7 @@ class Observer {
 			'd1': 'tradeBin1d'
 		};
 		let tableName = tableNames[candle.frame];
-		this.socket.addStream("XBTUSD", tableName, async (data, symbol, tableName) => {
+		this.socket.addStream(candle.market.bitmex, tableName, async (data, symbol, tableName) => {
 			if (!data.length) {
 				return;
 			}
@@ -127,30 +126,24 @@ class Observer {
 		});
 	}
 	async _triggerUpdate(candle) {
-		this._test();
+		this._test(candle);
 		let data = await candle.last();
-		this.onUpdate(candle.frame, JSON.stringify(data));
+		this.onUpdate(candle.market, candle.frame, JSON.stringify(data));
 	}
-	async _test() {
-		for (let frame in this.candles) {
-			let m = this.candles[frame];
-			let first = await m.first();
-			let last = await m.last();
-			if (!first || !last) {
-				continue;
-			}
-			let count = last.time.getTime() - first.time.getTime();
-			count /= m.span;
-			count++;
-			m.count({}, (e, d) => {
-				if (d == count) {
-					//					console.log(frame,"OK",count)
-				} else {
-					console.log(frame, "NG", d - count);
-					//					searchLost(m);
-				}
-			});
+	async _test(candle) {
+		let first = await candle.first();
+		let last = await candle.last();
+		if (!first || !last) {
+			return;
 		}
+		let count = last.time.getTime() - first.time.getTime();
+		count /= candle.span;
+		count++;
+		candle.count({}, (e, d) => {
+			if (d != count) {
+				console.log(frame, "NG", d - count);
+			}
+		});
 	}
 }
 exports.default = Observer;

@@ -34,7 +34,7 @@ function findBaseMs(ms){
 	}
 	return found;
 }
-export default function Candle(frame,ms){
+export default function Candle(frame,ms,ccxtName,bitmexName){
 	var candleSchema = new mongoose.Schema({
 		// 開始時間 open time
 		time : {
@@ -47,6 +47,10 @@ export default function Candle(frame,ms){
 		close : Number,
 		volume : Number,
 	});
+	candleSchema.statics.market = {
+		ccxt : ccxtName,
+		bitmex : bitmexName
+	};
 	let baseMs = findBaseMs(ms);
 	if(baseMs){
 		candleSchema.statics.baseMs = baseMs;
@@ -88,7 +92,7 @@ export default function Candle(frame,ms){
 			break;
 		}
 		var data = await ccxt.fetchOHLCV(
-			"BTC/USD",
+			ccxtName,
 			name,
 			since,
 			500,{

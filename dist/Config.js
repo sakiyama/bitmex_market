@@ -15,21 +15,24 @@ function Config() {
 	var configSchema = new _mongoose2.default.Schema({
 		// 開始時間 open time
 		timeframes: _mongoose2.default.Schema.Types.Mixed,
-		history: Date
+		history: Date,
+		markets: _mongoose2.default.Schema.Types.Mixed
 	});
 
 	configSchema.statics.load = function () {
 		return this.findOne({}, '', {}).exec();
 	};
-	configSchema.statics.save = async function (timeframes, history) {
+	configSchema.statics.save = async function (timeframes, history, markets) {
 		let old = await this.load();
 		if (old) {
 			old.timeframes = timeframes;
 			old.history = history;
+			old.markets = markets;
 		} else {
 			old = new this({
 				timeframes: timeframes,
-				history: history
+				history: history,
+				markets: markets
 			});
 		}
 		return old.save();
