@@ -26,6 +26,14 @@ module.exports = {
 		let configModel = connection.model("config",Config());
 
 		let frames = Object.assign({},options.timeframes,timeframes);
+
+//		for(let frame in frames){
+//			connection.dropCollection("candle_" + frame, function(err, result) {
+//				console.log(err, result);
+//			});
+//		}
+//		return;
+
 		configModel.save(frames,options.history);
 		let publisher = redis.createClient(options.redis);
 		let result = createResult(connection,frames);
