@@ -73,20 +73,20 @@ export default class Observer{
 		};
 		let tableName = tableNames[candle.frame];
 		this.socket.addStream(
-				"XBTUSD",
-				tableName,
-				async (data, symbol, tableName) =>{
-					if(!data.length){
-						return;
-					}
-					data = data[data.length - 1];
-					data = candle.parseSocket(data);
-					data = data.toObject();
-					candle.upsertIfNew(data,() => {
-						this._triggerUpdate(candle);
-						this._convertDistination(distination);
-					});
+			"XBTUSD",
+			tableName,
+			async (data, symbol, tableName) =>{
+				if(!data.length){
+					return;
+				}
+				data = data[data.length - 1];
+				data = candle.parseSocket(data);
+				data = data.toObject();
+				candle.upsertIfNew(data,() => {
+					this._triggerUpdate(candle);
+					this._convertDistination(distination);
 				});
+			});
 	}
 	async _polling(candle,history_start,distination){
 		while(true){

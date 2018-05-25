@@ -21,8 +21,10 @@ _index2.default.server({
 	timeframes: {
 		"m2": 2 * 60 * 1000, // { name : ms }
 		"m15": 15 * 60 * 1000, // { name : ms }
-		"h2": 2 * 60 * 60 * 1000 // { name : ms }
+		"m30": 30 * 60 * 1000, // { name : ms }
+		"h2": 2 * 60 * 60 * 1000, // { name : ms }
+		"h4": 4 * 60 * 60 * 1000 // { name : ms }
 	},
 	// getting historical data form below
-	history: "2018-01-01T00:00:00.000Z" // Z make this utc
+	history: "2018-04-01T00:00:00.000Z" // Z make this utc
 });
