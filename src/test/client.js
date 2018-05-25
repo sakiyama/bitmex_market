@@ -30,6 +30,6 @@ import Market from '../index';
 		console.log('d1',d);
 	});
 	let candles = await market.m1.load(100);
-	console.log(candles)
+//	console.log(candles)
 })();
 
