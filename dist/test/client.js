@@ -17,6 +17,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 			password: "test_redis_password"
 		}
 	});
+	market = market.XBTUSD;
 	market.m1.on(d => {
 		console.log('m1', d);
 	});

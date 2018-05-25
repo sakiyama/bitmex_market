@@ -21,10 +21,8 @@ export default class Observer{
 			testnet: false,
 			alwaysReconnect : true,
 		});
-		this.socket.on('error', (e) => {
-		});
+		this.socket.on('error', (e) => {});
 		(async () => {
-
 			let promises = [];
 			for(let localName in frames){
 				let proimse = this._loadHistorical(
@@ -73,7 +71,7 @@ export default class Observer{
 		};
 		let tableName = tableNames[candle.frame];
 		this.socket.addStream(
-			"XBTUSD",
+			candle.market.bitmex,
 			tableName,
 			async (data, symbol, tableName) =>{
 				if(!data.length){
@@ -129,7 +127,10 @@ export default class Observer{
 	async _triggerUpdate(candle){
 		this._test(candle);
 		let data = await candle.last();
-		this.onUpdate(candle.frame,JSON.stringify(data));
+		this.onUpdate(
+			candle.market,
+			candle.frame,
+			JSON.stringify(data));
 	}
 	async _test(candle){
 		let first = await candle.first();

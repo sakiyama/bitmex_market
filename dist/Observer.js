@@ -35,7 +35,6 @@ class Observer {
 		});
 		this.socket.on('error', e => {});
 		(async () => {
-
 			let promises = [];
 			for (let localName in frames) {
 				let proimse = this._loadHistorical(candles[localName], history_start);
@@ -77,7 +76,7 @@ class Observer {
 			'd1': 'tradeBin1d'
 		};
 		let tableName = tableNames[candle.frame];
-		this.socket.addStream("XBTUSD", tableName, async (data, symbol, tableName) => {
+		this.socket.addStream(candle.market.bitmex, tableName, async (data, symbol, tableName) => {
 			if (!data.length) {
 				return;
 			}
@@ -129,7 +128,7 @@ class Observer {
 	async _triggerUpdate(candle) {
 		this._test(candle);
 		let data = await candle.last();
-		this.onUpdate(candle.frame, JSON.stringify(data));
+		this.onUpdate(candle.market, candle.frame, JSON.stringify(data));
 	}
 	async _test(candle) {
 		let first = await candle.first();

@@ -48,7 +48,7 @@ function findBaseMs(ms) {
 	}
 	return found;
 }
-function Candle(frame, ms) {
+function Candle(frame, ms, ccxtName, bitmexName) {
 	var candleSchema = new _mongoose2.default.Schema({
 		// 開始時間 open time
 		time: {
@@ -61,6 +61,10 @@ function Candle(frame, ms) {
 		close: Number,
 		volume: Number
 	});
+	candleSchema.statics.market = {
+		ccxt: ccxtName,
+		bitmex: bitmexName
+	};
 	let baseMs = findBaseMs(ms);
 	if (baseMs) {
 		candleSchema.statics.baseMs = baseMs;
@@ -100,7 +104,7 @@ function Candle(frame, ms) {
 			name = property;
 			break;
 		}
-		var data = await ccxt.fetchOHLCV("BTC/USD", name, since, 500, {
+		var data = await ccxt.fetchOHLCV(ccxtName, name, since, 500, {
 			partial: false
 		});
 		data = data.map(d => {

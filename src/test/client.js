@@ -11,6 +11,7 @@ import Market from '../index';
 			password : "test_redis_password"
 		},
 	});
+	market = market.XBTUSD;
 	market.m1.on((d)=>{
 		console.log('m1',d);
 	});
