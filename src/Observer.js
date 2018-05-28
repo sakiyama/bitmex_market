@@ -15,42 +15,45 @@ export default class Observer{
 			optional_frames,
 			history_start,
 			onUpdate) {
+		this.frames = frames;
 		this.candles = candles;
+		this.history_start = history_start;
+		this.optional_frames = optional_frames;
 		this.onUpdate = onUpdate;
 		this.socket = new BitMEXClient({
 			testnet: false,
 			alwaysReconnect : true,
 		});
 		this.socket.on('error', (e) => {});
-		(async () => {
-			let promises = [];
-			for(let localName in frames){
-				let proimse = this._loadHistorical(
-						candles[localName],
-						history_start)
-				promises.push(proimse);
-			}
-			await Promise.all(promises);
-			for(let optional in optional_frames){
-				await Converter(
-					this.candles,
-					this.candles[optional]);
-			}
-			for(let frame in candles){
-				this._triggerUpdate(candles[frame]);
-			}
-			for(let localName in frames){
-				let candle = this.candles[localName];
-				let distination = [];
-				for(let property in this.candles){
-					if(this.candles[property].baseMs == candle.span){
-						distination.push(this.candles[property]);
-					}
+	}
+	async load(){
+		let promises = [];
+		for(let localName in this.frames){
+			let proimse = this._loadHistorical(
+					this.candles[localName],
+					this.history_start)
+			promises.push(proimse);
+		}
+		await Promise.all(promises);
+		for(let optional in this.optional_frames){
+			await Converter(
+				this.candles,
+				this.candles[optional]);
+		}
+		for(let frame in this.candles){
+			this._triggerUpdate(this.candles[frame]);
+		}
+		for(let localName in this.frames){
+			let candle = this.candles[localName];
+			let distination = [];
+			for(let property in this.candles){
+				if(this.candles[property].baseMs == candle.span){
+					distination.push(this.candles[property]);
 				}
-				this._polling(candle,history_start,distination);
-				this._connectSocket(candle,distination);
 			}
-		})();
+			this._polling(candle,this.history_start,distination);
+			this._connectSocket(candle,distination);
+		}
 	}
 	async _convertDistination(distination){
 		for(let dist of distination){
@@ -112,7 +115,7 @@ export default class Observer{
 		return new Promise(async resolve => {
 			let since = await this._getLastTime(model,history_start);
 			while(true){
-//				console.log(`getting historical ${model.frame} data from timestamp : ${new Date(since)}`);
+				console.log(`getting historical ${model.frame} data from timestamp : ${new Date(since)}`);
 				let data = await model.fetch(since);
 				if(data.length < 499){
 					console.log(`got all ${model.frame} histories`)
@@ -143,7 +146,7 @@ export default class Observer{
 		count++;
 		candle.count({},(e,d)=>{
 			if(d != count){
-				console.log(frame,"NG",d-count)
+				console.log(candle.frame,"NG",d-count)
 			}
 		})
 	}

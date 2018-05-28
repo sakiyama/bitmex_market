@@ -13,7 +13,7 @@ Market.server({
 		'BTC/USD':'XBTUSD',
 //		'ETHM18':'ETHM18',
 //		'LTCM18':'LTCM18',
-//		'ADAM18':'ADAM18',
+		'ADAM18':'ADAM18',
 //		'XRPM18':'XRPM18'
 	},
 	// optional time frames

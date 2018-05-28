@@ -61,6 +61,7 @@ module.exports = {
 			let observer = new _Observer2.default(result[market], timeframes, options.timeframes, options.history, (market, frame, data) => {
 				publisher.publish(`${market.bitmex}_${frame}`, data);
 			});
+			await observer.load();
 			observers.push(observer);
 		}
 

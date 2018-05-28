@@ -51,6 +51,7 @@ module.exports = {
 				(market,frame,data) => {
 					publisher.publish(`${market.bitmex}_${frame}`,data);
 				});
+			await observer.load();
 			observers.push(observer);
 		}
 
