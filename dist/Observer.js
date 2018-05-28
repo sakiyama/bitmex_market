@@ -116,7 +116,7 @@ class Observer {
 		return new Promise(async resolve => {
 			let since = await this._getLastTime(model, history_start);
 			while (true) {
-				console.log(`getting historical ${model.frame} data from timestamp : ${new Date(since)}`);
+				//				console.log(`getting historical ${model.frame} data from timestamp : ${new Date(since)}`);
 				let data = await model.fetch(since);
 				if (data.length < 499) {
 					console.log(`got all ${model.frame} histories`);
@@ -144,7 +144,7 @@ class Observer {
 		count++;
 		candle.count({}, (e, d) => {
 			if (d != count) {
-				console.log(candle.frame, "NG", d - count);
+				console.log(candle.market.ccxt, candle.frame, "NG", d - count);
 			}
 		});
 	}

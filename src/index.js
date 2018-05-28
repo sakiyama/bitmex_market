@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import Candle from './Candle';
 import Config from './Config';
 import Observer from './Observer';
+import Ccxt from 'ccxt';
 var redis = require("redis");
 
 let timeframes = {
@@ -11,13 +12,24 @@ let timeframes = {
 	"h1" : 60 * 60 * 1000,
 	"d1" : 24 * 60 * 60 * 1000,
 };
-function createResult(connection,frames,markets){
+async function createResult(connection,frames,markets){
+	let ccxt = new Ccxt.bitmex();
+	let ccxt_markets = await ccxt.fetchMarkets();
 	let result = {};
 	for(let ccxtName in markets){
+		let ccxt_market = ccxt_markets.filter(m => {
+			return m.id == ccxtName;
+		});
 		let bitmexName = markets[ccxtName];
 		result[bitmexName] = {};
 		for( let frame in frames){
-			let schema = Candle(frame,frames[frame],ccxtName,bitmexName);
+			let schema = Candle(
+					ccxt,
+					ccxt_market[0],
+					frame,
+					frames[frame],
+					ccxtName,
+					bitmexName);
 			let collection = bitmexName.toLowerCase() + "_" + frame;
 			result[bitmexName][frame] = connection.model(collection,schema);
 		}
@@ -40,7 +52,7 @@ module.exports = {
 
 		configModel.save(frames,options.history,options.markets);
 		let publisher = redis.createClient(options.redis);
-		let result = createResult(connection,frames,options.markets);
+		let result = await createResult(connection,frames,options.markets);
 		let observers = [];
 		for(let market in result){
 			let observer = new Observer(
@@ -63,7 +75,7 @@ module.exports = {
 
 		let config = await configModel.load();
 		let frames = config.timeframes;
-		let result = createResult(connection,frames,config.markets);
+		let result = await createResult(connection,frames,config.markets);
 
 		let subscriber = redis.createClient(options.redis);
 

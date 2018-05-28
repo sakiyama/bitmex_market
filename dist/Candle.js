@@ -5,17 +5,12 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = Candle;
 
-var _mongoose = require('mongoose');
+var _mongoose = require("mongoose");
 
 var _mongoose2 = _interopRequireDefault(_mongoose);
 
-var _ccxt = require('ccxt');
-
-var _ccxt2 = _interopRequireDefault(_ccxt);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-let ccxt = new _ccxt2.default.bitmex();
 let bitmexTimeFrames = {
 	"1m": 1 * 60 * 1000,
 	"5m": 5 * 60 * 1000,
@@ -48,7 +43,7 @@ function findBaseMs(ms) {
 	}
 	return found;
 }
-function Candle(frame, ms, ccxtName, bitmexName) {
+function Candle(ccxt, market, frame, ms, ccxtName, bitmexName) {
 	var candleSchema = new _mongoose2.default.Schema({
 		// 開始時間 open time
 		time: {
@@ -61,6 +56,8 @@ function Candle(frame, ms, ccxtName, bitmexName) {
 		close: Number,
 		volume: Number
 	});
+	candleSchema.statics.ccxt = ccxt;
+	candleSchema.statics.description = market;
 	candleSchema.statics.market = {
 		ccxt: ccxtName,
 		bitmex: bitmexName

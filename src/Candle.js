@@ -1,7 +1,5 @@
 "use strict";
 import mongoose from 'mongoose'
-import Ccxt from 'ccxt';
-let ccxt = new Ccxt.bitmex();
 let bitmexTimeFrames = {
 	"1m" : 1 * 60 * 1000,
 	"5m" : 5 * 60 * 1000,
@@ -34,7 +32,7 @@ function findBaseMs(ms){
 	}
 	return found;
 }
-export default function Candle(frame,ms,ccxtName,bitmexName){
+export default function Candle(ccxt,market,frame,ms,ccxtName,bitmexName){
 	var candleSchema = new mongoose.Schema({
 		// 開始時間 open time
 		time : {
@@ -47,6 +45,8 @@ export default function Candle(frame,ms,ccxtName,bitmexName){
 		close : Number,
 		volume : Number,
 	});
+	candleSchema.statics.ccxt = ccxt;
+	candleSchema.statics.description = market;
 	candleSchema.statics.market = {
 		ccxt : ccxtName,
 		bitmex : bitmexName
