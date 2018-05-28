@@ -36,7 +36,7 @@ async function createResult(connection, frames, markets) {
 	let result = {};
 	for (let ccxtName in markets) {
 		let ccxt_market = ccxt_markets.filter(m => {
-			return m.id == ccxtName;
+			return m.id == markets[ccxtName];
 		});
 		let bitmexName = markets[ccxtName];
 		result[bitmexName] = {};
