@@ -101,7 +101,7 @@ class Observer {
 					this._convertDistination(distination);
 				});
 			} catch (e) {}
-			await sleep(20000);
+			await sleep(30000);
 		}
 	}
 	async _getLastTime(model, history_start) {
