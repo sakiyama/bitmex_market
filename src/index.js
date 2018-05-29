@@ -5,7 +5,9 @@ import Config from './Config';
 import Observer from './Observer';
 import Ccxt from 'ccxt';
 var redis = require("redis");
-
+let sleep = (ms) => {
+	return new Promise(resolve => setTimeout(resolve, ms));
+}
 let timeframes = {
 	"m1" : 1 * 60 * 1000,
 	"m5" : 5 * 60 * 1000,
@@ -64,6 +66,7 @@ module.exports = {
 					publisher.publish(`${market.bitmex}_${frame}`,data);
 				});
 			await observer.load();
+			await sleep(20000);
 			observers.push(observer);
 		}
 

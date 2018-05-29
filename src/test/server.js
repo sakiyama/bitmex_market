@@ -9,11 +9,11 @@ Market.server({
 		password : "test_redis_password"
 	},
 	markets : {
-		'BCHM18':'BCHM18',
-		'BTC/USD':'XBTUSD',
-		'ETHM18':'ETHM18',
-		'LTCM18':'LTCM18',
-		'ADAM18':'ADAM18',
+//		'BCHM18':'BCHM18',
+//		'BTC/USD':'XBTUSD',
+//		'ETHM18':'ETHM18',
+//		'LTCM18':'LTCM18',
+//		'ADAM18':'ADAM18',
 		'XRPM18':'XRPM18'
 	},
 	// optional time frames

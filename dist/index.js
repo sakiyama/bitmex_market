@@ -23,7 +23,9 @@ var _ccxt2 = _interopRequireDefault(_ccxt);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var redis = require("redis");
-
+let sleep = ms => {
+	return new Promise(resolve => setTimeout(resolve, ms));
+};
 let timeframes = {
 	"m1": 1 * 60 * 1000,
 	"m5": 5 * 60 * 1000,
@@ -71,6 +73,7 @@ module.exports = {
 				publisher.publish(`${market.bitmex}_${frame}`, data);
 			});
 			await observer.load();
+			await sleep(20000);
 			observers.push(observer);
 		}
 
